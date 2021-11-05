@@ -74,7 +74,7 @@ def output_file(data, path):
             file.write(row + '\n')
 
 
-if __name__ == "__main__":
+def main():
     args = parse_cli_args()
 
     print(rand_alphabet(2, 2))
@@ -87,3 +87,7 @@ if __name__ == "__main__":
     domains = generate_domains(args.count, args.top_level, args.skip)
     output_file(domains, f'./output/{args.file}.txt')
     print('Done!')
+
+
+if __name__ == "__main__":
+    main()
