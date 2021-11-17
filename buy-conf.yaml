@@ -1,3 +1,9 @@
+env: "ote" # prod , ote
+apiKey: "key"
+apiSecret: "secret"
+
+shopperId: ""
+
 consent:
   agreedAt: "string"
   agreedBy: "string"
@@ -12,14 +18,14 @@ contactAdmin:
     country: "US"
     postalCode: "string"
     state: "string"
-    email: "user@example.com"
-    fax: "string"
-    jobTitle: "string"
-    nameFirst: "string"
-    nameLast: "string"
-    nameMiddle: "string"
-    organization: "string"
-    phone: "string"
+  email: "user@example.com"
+  fax: "string"
+  jobTitle: "string"
+  nameFirst: "string"
+  nameLast: "string"
+  nameMiddle: "string"
+  organization: "string"
+  phone: "string"
 
 contactBilling:
   addressMailing:
