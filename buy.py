@@ -6,6 +6,17 @@ import json
 from multipledispatch import dispatch
 from datetime import datetime 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
 def parse_cli_args():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -72,9 +83,9 @@ def domain_purchase(domain):
     r = requests.post(go_daddy_api+'/v1/domains/purchase', data=json.dumps(params), headers=headers)
 
     if(r.status_code != 200):
-        print("[Faill] Message: " + r.json()['message'])
+        print(bcolors.FAIL + "[Fail] Message: " + r.json()['message'])
     else:
-        print('(' + domain + ')' + ' Success')
+        print(bcolors.OKGREEN + '(' + domain + ')' + ' Success')
 
 @dispatch(tuple)
 def domain_purchase(domains):
@@ -135,7 +146,7 @@ def main():
         data = tuple(f.read().split('\n')[:-1])
         domain_purchase(data)
 
-    print('Done!')
+    print(bcolors.OKGREEN + 'Done!')
 
 if __name__ == "__main__":
     main()
