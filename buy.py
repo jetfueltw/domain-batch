@@ -3,6 +3,7 @@ from typing import Match
 import requests
 import yaml
 from datetime import datetime
+import json
 
 
 def parse_cli_args():
@@ -55,7 +56,7 @@ def api_domain_agreement(apiHost, domain, conf):
         },
         params={
             "tlds": domain,
-            "privacy": "true",
+            "privacy": conf["privacy"],
         },
     )
 
@@ -171,17 +172,16 @@ def buy_domains(apiHost, domains, conf):
             apiHost + "/v1/domains/purchase",
             headers={
                 "Authorization": f"sso-key {conf['apiKey']}:{conf['apiSecret']}",
-                "X-Shopper-Id": conf["shopperId"],
                 "Content-Type": "application/json",
                 "accept": "application/json",
             },
-            json=data,
+            data=json.dumps(data),
         )
 
         if res.status_code == 200:
             print(f"{domain} [success]")
         else:
-            raise Exception(f"{domain} [fail] {res.status_code} {res.content}")
+            print(f"{domain} [fail] {res.status_code} {res.content}")
 
 
 def main():

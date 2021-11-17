@@ -82,5 +82,5 @@ contactTech:
   phone: "+86.130000012345"
 
 period: 1
-privacy: true
+privacy: false
 renewAuto: true
