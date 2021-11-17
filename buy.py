@@ -2,7 +2,7 @@ import argparse
 from typing import Match
 import requests
 import yaml
-import datetime
+from datetime import datetime
 
 
 def parse_cli_args():
@@ -45,7 +45,7 @@ def get_api_host(env):
         return "https://api.ote-godaddy.com"
 
 
-def api_domain_agreement(apiHost, domains, conf):
+def api_domain_agreement(apiHost, domain, conf):
     res = requests.get(
         apiHost + "/v1/domains/agreements",
         headers={
@@ -55,14 +55,16 @@ def api_domain_agreement(apiHost, domains, conf):
         },
         params={
             "X-Market-Id": "en-US",
-            "tlds": domains,
+            "tlds": domain,
             "privacy": "true",
         },
     )
 
     if res.status_code == 200:
         return {
-            "agreedAt": f"{datetime.datetime.now().isoformat()}Z",
+            "agreeAt": datetime.strptime(
+                res.headers["Date"], "%a, %d %b %Y %X %Z"
+            ).isoformat(),
             "agreedBy": requests.get("https://api.ipify.org").text,
             "agreementKeys": [res.json()[0]["agreementKey"]],
         }
@@ -70,8 +72,11 @@ def api_domain_agreement(apiHost, domains, conf):
     raise Exception(f"get agreement err: {res.status_code} {res.content}")
 
 
-def buy_domains(apiHost, domains, conf, agreement):
+def buy_domains(apiHost, domains, conf):
     for domain in domains:
+
+        agreement = api_domain_agreement(apiHost, domain, conf)
+
         data = {
             "consent": agreement,
             "contactAdmin": {
@@ -184,9 +189,7 @@ def main():
 
     apiHost = get_api_host(conf["env"])
 
-    agreement = api_domain_agreement(apiHost, domains, conf)
-
-    buy_domains(apiHost, domains, conf, agreement)
+    buy_domains(apiHost, domains, conf)
 
 
 if __name__ == "__main__":
