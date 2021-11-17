@@ -77,8 +77,6 @@ def output_file(data, path):
 def main():
     args = parse_cli_args()
 
-    print(rand_alphabet(2, 2))
-
     if args.top_level in WHOIS_NOT_SUPPORT:
         args.skip = True
         print('Skip domain available check')
