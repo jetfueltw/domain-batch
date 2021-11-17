@@ -11,3 +11,5 @@ python generate.py 20 \
     --file=20211029 \
     --skip
 ```
+# 透過 godday api 購買域名
+python buy.py ./output/domains.txt
