@@ -12,4 +12,6 @@ python generate.py 20 \
     --skip
 ```
 # 透過 godday api 購買域名
+```
 python buy.py ./output/domains.txt
+```
