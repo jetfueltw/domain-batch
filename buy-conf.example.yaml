@@ -9,7 +9,6 @@ nameServers:
 shopperId: ""
 
 consent:
-  agreedBy: "string"
   agreementKeys:
     - "DNRA"
     - "DNPA"
