@@ -11,7 +11,12 @@ python generate.py 20 \
     --file=20211029 \
     --skip
 ```
+
 ## 透過 godday api 購買域名
 ```
+# 設定購買域名的參數 (apiKey, apiSecret, nameServers ...)
+cp buy-conf.example.yaml buy-conf.yaml
+
+# 透過 godaddy api 購買域名
 python buy.py ./output/domains.txt
 ```
