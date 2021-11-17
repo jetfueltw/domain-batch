@@ -54,7 +54,6 @@ def api_domain_agreement(apiHost, domain, conf):
             "X-Market-Id": "en-US",
         },
         params={
-            "X-Market-Id": "en-US",
             "tlds": domain,
             "privacy": "true",
         },
@@ -63,8 +62,8 @@ def api_domain_agreement(apiHost, domain, conf):
     if res.status_code == 200:
         agreementKeys = []
 
-        for key in res.json():
-            agreementKeys.append(key)
+        for item in res.json():
+            agreementKeys.append(item["agreementKey"])
 
         return {
             "agreedAt": datetime.strptime(
