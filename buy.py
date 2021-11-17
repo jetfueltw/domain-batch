@@ -45,7 +45,6 @@ def domain_purchase(domain):
     default_info = {
             "addressMailing": {
                 "address1": contact_address1,
-                "address2": "1",
                 "city": contact_city,
                 "country": contact_country,
                 "postalCode": contact_postalCode,
@@ -87,7 +86,6 @@ def init():
 
     global go_daddy_api
     go_daddy_api = os.getenv('GO_DADDY_API')
-    print(go_daddy_api)
 
     global go_daddy_key
     go_daddy_key = os.getenv('GO_DADDY_KEY')
