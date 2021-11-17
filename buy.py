@@ -2,6 +2,7 @@ import argparse
 from typing import Match
 import requests
 import yaml
+import datetime
 
 
 def parse_cli_args():
@@ -49,10 +50,11 @@ def buy_domains(domains, confYamlPath):
             headers={
                 "Authorization": f"sso-key {conf['apiKey']}:{conf['apiSecret']}",
                 "X-Shopper-Id": conf["shopperId"],
+                "Content-Type": "application/json",
             },
             json={
                 "consent": {
-                    "agreedAt": conf["consent"]["agreedAt"],
+                    "agreedAt": f"{datetime.datetime.now().isoformat()}Z",
                     "agreedBy": conf["consent"]["agreedBy"],
                     "agreementKeys": conf["consent"]["agreementKeys"],
                 },
