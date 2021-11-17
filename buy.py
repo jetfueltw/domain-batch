@@ -61,12 +61,18 @@ def api_domain_agreement(apiHost, domain, conf):
     )
 
     if res.status_code == 200:
+        agreementKeys = []
+
+        for key in res.json():
+            agreementKeys.append(key)
+
         return {
-            "agreeAt": datetime.strptime(
+            "agreedAt": datetime.strptime(
                 res.headers["Date"], "%a, %d %b %Y %X %Z"
-            ).isoformat(),
+            ).isoformat()
+            + "Z",
             "agreedBy": requests.get("https://api.ipify.org").text,
-            "agreementKeys": [res.json()[0]["agreementKey"]],
+            "agreementKeys": agreementKeys,
         }
 
     raise Exception(f"get agreement err: {res.status_code} {res.content}")
@@ -176,7 +182,7 @@ def buy_domains(apiHost, domains, conf):
         if res.status_code == 200:
             print(f"{domain} [success]")
         else:
-            print(f"{domain} [fail] {res.status_code} {res.content}")
+            raise Exception(f"{domain} [fail] {res.status_code} {res.content}")
 
 
 def main():
