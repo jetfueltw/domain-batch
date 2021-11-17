@@ -2,6 +2,10 @@ env: "ote" # prod , ote
 apiKey: "key"
 apiSecret: "secret"
 
+nameServers:
+  - "aa1.dns.com"
+  - "aa2.dns.com"
+
 shopperId: ""
 
 consent:
@@ -78,9 +82,6 @@ contactTech:
   organization: "string"
   phone: "+86.130000012345"
 
-nameServers:
-  - "string"
-  - "string"
 period: 1
 privacy: true
 renewAuto: true
