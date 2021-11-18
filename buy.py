@@ -46,7 +46,7 @@ def get_api_host(env):
         return "https://api.ote-godaddy.com"
 
 
-def api_domain_agreement(apiHost, domain, conf):
+def api_domain_agreement(apiHost, domains, conf):
     res = requests.get(
         apiHost + "/v1/domains/agreements",
         headers={
@@ -55,7 +55,7 @@ def api_domain_agreement(apiHost, domain, conf):
             "X-Market-Id": "en-US",
         },
         params={
-            "tlds": domain,
+            "tlds": domains,
             "privacy": conf["privacy"],
         },
     )
@@ -67,10 +67,7 @@ def api_domain_agreement(apiHost, domain, conf):
             agreementKeys.append(item["agreementKey"])
 
         return {
-            "agreedAt": datetime.strptime(
-                res.headers["Date"], "%a, %d %b %Y %X %Z"
-            ).isoformat()
-            + "Z",
+            "agreedAt": f"{datetime.strptime(res.headers['Date'], '%a, %d %b %Y %X %Z').isoformat()}Z",
             "agreedBy": requests.get("https://api.ipify.org").text,
             "agreementKeys": agreementKeys,
         }
@@ -78,11 +75,8 @@ def api_domain_agreement(apiHost, domain, conf):
     raise Exception(f"get agreement err: {res.status_code} {res.content}")
 
 
-def buy_domains(apiHost, domains, conf):
+def buy_domains(apiHost, domains, conf, agreement):
     for domain in domains:
-
-        agreement = api_domain_agreement(apiHost, domain, conf)
-
         data = {
             "consent": agreement,
             "contactAdmin": {
@@ -194,7 +188,9 @@ def main():
 
     apiHost = get_api_host(conf["env"])
 
-    buy_domains(apiHost, domains, conf)
+    agreement = api_domain_agreement(apiHost, domains, conf)
+
+    buy_domains(apiHost, domains, conf, agreement)
 
 
 if __name__ == "__main__":
