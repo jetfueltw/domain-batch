@@ -75,6 +75,7 @@ def godaddy_domain_agreement(apiHost, domains, conf):
 
 
 def godaddy_buy_domains(apiHost, domains, conf, agreement):
+    idx = 0
     for domain in domains:
         data = {
             "consent": agreement,
@@ -99,10 +100,13 @@ def godaddy_buy_domains(apiHost, domains, conf, agreement):
             json=data,
         )
 
+        idx += 1
         if res.status_code == 200:
-            print(f"{domain} [success]")
+            print(f"[{idx}/{len(domains)}] {domain} [success]")
         else:
-            print(f"{domain} [fail] {res.status_code} {res.content}")
+            print(
+                f"[{idx}/{len(domains)}] {domain} [fail] {res.status_code} {res.content}"
+            )
 
 
 def main():
