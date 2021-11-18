@@ -3,7 +3,6 @@ from typing import Match
 import requests
 import yaml
 from datetime import datetime
-import json
 
 
 def parse_cli_args():
@@ -46,7 +45,7 @@ def get_api_host(env):
         return "https://api.ote-godaddy.com"
 
 
-def api_domain_agreement(apiHost, domains, conf):
+def godaddy_domain_agreement(apiHost, domains, conf):
     res = requests.get(
         apiHost + "/v1/domains/agreements",
         headers={
@@ -75,7 +74,7 @@ def api_domain_agreement(apiHost, domains, conf):
     raise Exception(f"get agreement err: {res.status_code} {res.content}")
 
 
-def buy_domains(apiHost, domains, conf, agreement):
+def godaddy_buy_domains(apiHost, domains, conf, agreement):
     for domain in domains:
         data = {
             "consent": agreement,
@@ -97,7 +96,7 @@ def buy_domains(apiHost, domains, conf, agreement):
                 "Content-Type": "application/json",
                 "accept": "application/json",
             },
-            data=json.dumps(data),
+            json=data,
         )
 
         if res.status_code == 200:
@@ -116,9 +115,9 @@ def main():
 
     apiHost = get_api_host(conf["env"])
 
-    agreement = api_domain_agreement(apiHost, domains, conf)
+    agreement = godaddy_domain_agreement(apiHost, domains, conf)
 
-    buy_domains(apiHost, domains, conf, agreement)
+    godaddy_buy_domains(apiHost, domains, conf, agreement)
 
 
 if __name__ == "__main__":
