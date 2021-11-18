@@ -9,9 +9,7 @@ nameServers:
 shopperId: ""
 
 consent:
-  agreementKeys:
-    - "DNRA"
-    - "DNPA"
+  agreedBy: "Luis Gonzalez"
 
 contactAdmin:
   addressMailing:

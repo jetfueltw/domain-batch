@@ -67,7 +67,7 @@ def godaddy_domain_agreement(apiHost, domains, conf):
 
         return {
             "agreedAt": f"{datetime.strptime(res.headers['Date'], '%a, %d %b %Y %X %Z').isoformat()}Z",
-            "agreedBy": requests.get("https://api.ipify.org").text,
+            "agreedBy": conf["consent"]["agreedBy"],
             "agreementKeys": agreementKeys,
         }
 
