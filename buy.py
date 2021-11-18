@@ -1,6 +1,5 @@
 import argparse
 import requests
-import json
 from multipledispatch import dispatch
 from datetime import datetime
 import env
@@ -27,25 +26,28 @@ def parse_cli_args():
 
 def api_agreement(domain):
     headers = {
-        'Authorization': 'sso-key ' + env.go_daddy_key + ':' + env.go_daddy_secret,
+        'Authorization': f'sso-key {env.go_daddy_key}:{env.go_daddy_secret}',
         'X-Market-Id': 'en-US',
         'accept': 'application/json'
     }
 
-    r = requests.get(env.go_daddy_api +'/v1/domains/agreements?tlds='+ domain +'&privacy=false', headers=headers)
+    r = requests.get(f'{env.go_daddy_api}/v1/domains/agreements?tlds={domain}&privacy=false', headers=headers)
 
-    timestamp = datetime.strptime(r.headers['Date'], "%a, %d %b %Y %X %Z").isoformat()
+    agreementKeys = []
+
+    for item in r.json():
+        agreementKeys.append(item["agreementKey"])
 
     return {
-        'agreementKeys':[r.json()[0]['agreementKey']],
-        'agreedAt': timestamp+"Z",
+        'agreementKeys': agreementKeys,
+        'agreedAt': datetime.strptime(r.headers['Date'], "%a, %d %b %Y %X %Z").isoformat()+"Z",
         'agreedBy': requests.get('https://api.ipify.org').text
     }
 
 @dispatch(str)
 def domain_purchase(domain):
     headers = {
-        'Authorization': 'sso-key ' + env.go_daddy_key + ':' + env.go_daddy_secret,
+        'Authorization': f'sso-key {env.go_daddy_key}:{env.go_daddy_secret}',
         'Content-Type': 'application/json',
         'accept': 'application/json'
     }
@@ -79,12 +81,12 @@ def domain_purchase(domain):
         "renewAuto": True
     }
 
-    r = requests.post(env.go_daddy_api+'/v1/domains/purchase', data=json.dumps(params), headers=headers)
+    r = requests.post(f'{env.go_daddy_api}/v1/domains/purchase', json=params, headers=headers)
 
     if(r.status_code != 200):
-        print(bcolors.FAIL + "[Fail] Message: " + r.json()['message'])
+        print(f'{bcolors.FAIL}[Fail] Message: ' + r.json()['message'])
     else:
-        print(bcolors.OKGREEN + '(' + domain + ')' + ' Success')
+        print(f'{bcolors.OKGREEN}({domain}) Success')
 
 @dispatch(tuple)
 def domain_purchase(domains):
@@ -103,7 +105,8 @@ def main():
         data = tuple(f.read().split('\n')[:-1])
         domain_purchase(data)
 
-    print(bcolors.OKGREEN + 'Done!')
+    print(f'{bcolors.OKGREEN}Done!')
 
 if __name__ == "__main__":
+    print('Start buy domains...')
     main()
