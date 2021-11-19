@@ -4,6 +4,7 @@ from multipledispatch import dispatch
 from datetime import datetime
 import env
 
+
 class bcolors:
     HEADER = '\033[95m'
     OKBLUE = '\033[94m'
@@ -15,6 +16,7 @@ class bcolors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
+
 def parse_cli_args():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -24,14 +26,17 @@ def parse_cli_args():
 
     return parser.parse_args()
 
+
 def api_agreement(domain):
     headers = {
         'Authorization': f'sso-key {env.go_daddy_key}:{env.go_daddy_secret}',
-        'X-Market-Id': 'en-US',
-        'accept': 'application/json'
+        'accept': 'application/json',
     }
 
-    r = requests.get(f'{env.go_daddy_api}/v1/domains/agreements?tlds={domain}&privacy=false', headers=headers)
+    r = requests.get(
+        f'{env.go_daddy_api}/v1/domains/agreements?tlds={domain}&privacy=false',
+        headers=headers,
+    )
 
     agreementKeys = []
 
@@ -40,32 +45,36 @@ def api_agreement(domain):
 
     return {
         'agreementKeys': agreementKeys,
-        'agreedAt': datetime.strptime(r.headers['Date'], "%a, %d %b %Y %X %Z").isoformat()+"Z",
-        'agreedBy': requests.get('https://api.ipify.org').text
+        'agreedAt': datetime.strptime(
+            r.headers['Date'], "%a, %d %b %Y %X %Z"
+        ).isoformat()
+        + "Z",
+        'agreedBy': requests.get('https://api.ipify.org').text,
     }
+
 
 @dispatch(str, int, int)
 def domain_purchase(domain, total, index):
     headers = {
         'Authorization': f'sso-key {env.go_daddy_key}:{env.go_daddy_secret}',
         'Content-Type': 'application/json',
-        'accept': 'application/json'
+        'accept': 'application/json',
     }
 
     agreement = api_agreement(domain)
 
     default_info = {
-            "addressMailing": {
-                "address1": env.contact_address1,
-                "city": env.contact_city,
-                "country": env.contact_country,
-                "postalCode": env.contact_postalCode,
-                "state": env.contact_state
-            },
-            "email": env.contact_email,
-            "nameFirst": env.contact_nameFirst,
-            "nameLast": env.contact_nameLast,
-            "phone": env.contact_phone
+        "addressMailing": {
+            "address1": env.contact_address1,
+            "city": env.contact_city,
+            "country": env.contact_country,
+            "postalCode": env.contact_postalCode,
+            "state": env.contact_state,
+        },
+        "email": env.contact_email,
+        "nameFirst": env.contact_nameFirst,
+        "nameLast": env.contact_nameLast,
+        "phone": env.contact_phone,
     }
 
     params = {
@@ -78,17 +87,23 @@ def domain_purchase(domain, total, index):
         "nameServers": env.name_server,
         "period": 1,
         "privacy": False,
-        "renewAuto": True
+        "renewAuto": False,
     }
 
-    r = requests.post(f'{env.go_daddy_api}/v1/domains/purchase', json=params, headers=headers)
+    r = requests.post(
+        f'{env.go_daddy_api}/v1/domains/purchase', json=params, headers=headers
+    )
 
-    if(r.status_code != 200):
-        print(f'{bcolors.ENDC}({index}/{total}){bcolors.FAIL}[Fail] Message: ' + r.json()['message'])
+    if r.status_code != 200:
+        print(
+            f'{bcolors.ENDC}({index}/{total}){bcolors.FAIL}[Fail] Message: '
+            + r.json()['message']
+        )
         return False
     else:
         print(f'{bcolors.ENDC}({index}/{total}){bcolors.OKGREEN}({domain}) Success')
         return True
+
 
 @dispatch(tuple)
 def domain_purchase(domains):
@@ -96,7 +111,8 @@ def domain_purchase(domains):
     index = 1
     for item in domains:
         domain_purchase(item, total, index)
-        index+=1
+        index += 1
+
 
 def main():
     print('Start buy domains...')
@@ -104,9 +120,9 @@ def main():
 
     env.init()
 
-    if(args.domain_name != None):
+    if args.domain_name != None:
         domain_purchase(args.domain_name, 1, 1)
-    if(args.file != None):
+    if args.file != None:
         f = open(args.file, 'r')
         data = tuple(f.read().split('\n')[:-1])
         total = len(data)
@@ -114,6 +130,7 @@ def main():
         domain_purchase(data)
 
     print(f'{bcolors.OKGREEN}Done!')
+
 
 if __name__ == "__main__":
     main()
