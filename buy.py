@@ -1,135 +1,127 @@
 import argparse
+from typing import Match
 import requests
-from multipledispatch import dispatch
+import yaml
 from datetime import datetime
-import env
-
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
 
 def parse_cli_args():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument('--domain-name', help='Will buy domain name')
-    parser.add_argument('--file', help='Import file name')
+    parser.add_argument(
+        "file",
+        help="txt file to buy domains (output by generate.py), ex ./output/domain.txt",
+        type=str,
+    )
 
     return parser.parse_args()
 
 
-def api_agreement(domain):
-    headers = {
-        'Authorization': f'sso-key {env.go_daddy_key}:{env.go_daddy_secret}',
-        'accept': 'application/json',
-    }
+def read_file(path):
+    domains = []
+    with open(f"{path}") as f:
+        lines = f.readlines()
+        for line in lines:
+            domain = line.replace("\n", "").replace(" ", "")
+            domains.append(domain)
 
-    r = requests.get(
-        f'{env.go_daddy_api}/v1/domains/agreements?tlds={domain}&privacy=false',
-        headers=headers,
-    )
-
-    agreementKeys = []
-
-    for item in r.json():
-        agreementKeys.append(item["agreementKey"])
-
-    return {
-        'agreementKeys': agreementKeys,
-        'agreedAt': datetime.strptime(
-            r.headers['Date'], "%a, %d %b %Y %X %Z"
-        ).isoformat()
-        + "Z",
-        'agreedBy': requests.get('https://api.ipify.org').text,
-    }
+    return domains
 
 
-@dispatch(str, int, int)
-def domain_purchase(domain, total, index):
-    headers = {
-        'Authorization': f'sso-key {env.go_daddy_key}:{env.go_daddy_secret}',
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-    }
+def get_buy_conf(confYamlPath):
+    # parse yaml
+    with open(confYamlPath, "r") as stream:
+        try:
+            return yaml.safe_load(stream)
+        except yaml.YAMLError as exc:
+            raise Exception(exc)
 
-    agreement = api_agreement(domain)
 
-    default_info = {
-        "addressMailing": {
-            "address1": env.contact_address1,
-            "city": env.contact_city,
-            "country": env.contact_country,
-            "postalCode": env.contact_postalCode,
-            "state": env.contact_state,
-        },
-        "email": env.contact_email,
-        "nameFirst": env.contact_nameFirst,
-        "nameLast": env.contact_nameLast,
-        "phone": env.contact_phone,
-    }
-
-    params = {
-        "consent": agreement,
-        "contactAdmin": default_info,
-        "contactBilling": default_info,
-        "contactRegistrant": default_info,
-        "contactTech": default_info,
-        "domain": domain,
-        "nameServers": env.name_server,
-        "period": 1,
-        "privacy": False,
-        "renewAuto": False,
-    }
-
-    r = requests.post(
-        f'{env.go_daddy_api}/v1/domains/purchase', json=params, headers=headers
-    )
-
-    if r.status_code != 200:
-        print(
-            f'{bcolors.ENDC}({index}/{total}){bcolors.FAIL}[Fail] Message: '
-            + r.json()['message']
-        )
-        return False
+def get_api_host(env):
+    if env == "prod":
+        return "https://api.godaddy.com"
     else:
-        print(f'{bcolors.ENDC}({index}/{total}){bcolors.OKGREEN}({domain}) Success')
-        return True
+        return "https://api.ote-godaddy.com"
 
 
-@dispatch(tuple)
-def domain_purchase(domains):
-    total = len(domains)
-    index = 1
-    for item in domains:
-        domain_purchase(item, total, index)
-        index += 1
+def godaddy_domain_agreement(apiHost, domains, conf):
+    res = requests.get(
+        apiHost + "/v1/domains/agreements",
+        headers={
+            "Authorization": f"sso-key {conf['apiKey']}:{conf['apiSecret']}",
+            "accept": "application/json",
+            "X-Market-Id": "en-US",
+        },
+        params={
+            "tlds": domains,
+            "privacy": conf["privacy"],
+        },
+    )
+
+    if res.status_code == 200:
+        agreementKeys = []
+
+        for item in res.json():
+            agreementKeys.append(item["agreementKey"])
+
+        return {
+            "agreedAt": f"{datetime.strptime(res.headers['Date'], '%a, %d %b %Y %X %Z').isoformat()}Z",
+            "agreedBy": conf["consent"]["agreedBy"],
+            "agreementKeys": agreementKeys,
+        }
+
+    raise Exception(f"get agreement err: {res.status_code} {res.content}")
+
+
+def godaddy_buy_domains(apiHost, domains, conf, agreement):
+    idx = 0
+    for domain in domains:
+        data = {
+            "consent": agreement,
+            "contactAdmin": conf["contactAdmin"],
+            "contactBilling": conf["contactBilling"],
+            "contactRegistrant": conf["contactRegistrant"],
+            "contactTech": conf["contactTech"],
+            "domain": domain,
+            "nameServers": conf["nameServers"],
+            "period": conf["period"],
+            "privacy": conf["privacy"],
+            "renewAuto": conf["renewAuto"],
+        }
+
+        res = requests.post(
+            apiHost + "/v1/domains/purchase",
+            headers={
+                "Authorization": f"sso-key {conf['apiKey']}:{conf['apiSecret']}",
+                "Content-Type": "application/json",
+                "accept": "application/json",
+            },
+            json=data,
+        )
+
+        idx += 1
+        if res.status_code == 200:
+            print(f"[{idx}/{len(domains)}] {domain} [success]")
+        else:
+            print(
+                f"[{idx}/{len(domains)}] {domain} [fail] {res.status_code} {res.content}"
+            )
 
 
 def main():
-    print('Start buy domains...')
     args = parse_cli_args()
 
-    env.init()
+    print("Start to buy domains...")
+    domains = read_file(args.file)
 
-    if args.domain_name != None:
-        domain_purchase(args.domain_name, 1, 1)
-    if args.file != None:
-        f = open(args.file, 'r')
-        data = tuple(f.read().split('\n')[:-1])
-        total = len(data)
-        print(f'{bcolors.HEADER}Have {bcolors.OKCYAN}{total} {bcolors.HEADER}domains')
-        domain_purchase(data)
+    conf = get_buy_conf("./buy-conf.yaml")
 
-    print(f'{bcolors.OKGREEN}Done!')
+    apiHost = get_api_host(conf["env"])
+
+    agreement = godaddy_domain_agreement(apiHost, domains, conf)
+
+    godaddy_buy_domains(apiHost, domains, conf, agreement)
 
 
 if __name__ == "__main__":

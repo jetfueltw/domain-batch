@@ -12,6 +12,8 @@ python generate.py 20 \
     --skip
 ```
 
+---
+
 ## 自動購買域名
 
 ### 設定環境變數
@@ -29,4 +31,15 @@ py buy.py --domain-name xxxxx(輸入域名)
 多個網域自動購買
 ```
 py buy.py --file xxxxx.txt(輸入域名檔案位置)
+```
+
+---
+
+## 透過 godday api 購買域名
+```
+# 設定購買域名的參數 (apiKey, apiSecret, nameServers ...)
+cp buy-conf.example.yaml buy-conf.yaml
+
+# 透過 godaddy api 購買域名
+python buy.py ./output/domains.txt
 ```

@@ -1,0 +1,84 @@
+env: "ote" # prod , ote
+apiKey: "key"
+apiSecret: "secret"
+
+nameServers:
+  - "aa1.dns.com"
+  - "aa2.dns.com"
+
+shopperId: ""
+
+consent:
+  agreedBy: "Luis Gonzalez"
+
+contactAdmin:
+  addressMailing:
+    address1: "string"
+    address2: "string"
+    city: "Jiangxi"
+    country: "CN"
+    postalCode: "330000"
+    state: "Jiangxi"
+  email: "user@example.com"
+  fax: ""
+  jobTitle: "string"
+  nameFirst: "string"
+  nameLast: "string"
+  nameMiddle: "string"
+  organization: "string"
+  phone: "+86.130000012345"
+
+contactBilling:
+  addressMailing:
+    address1: "string"
+    address2: "string"
+    city: "Jiangxi"
+    country: "CN"
+    postalCode: "330000"
+    state: "Jiangxi"
+  email: "user@example.com"
+  fax: ""
+  jobTitle: "string"
+  nameFirst: "string"
+  nameLast: "string"
+  nameMiddle: "string"
+  organization: "string"
+  phone: "+86.130000012345"
+
+contactRegistrant:
+  addressMailing:
+    address1: "string"
+    address2: "string"
+    city: "Jiangxi"
+    country: "CN"
+    postalCode: "330000"
+    state: "Jiangxi"
+  email: "user@example.com"
+  fax: ""
+  jobTitle: "string"
+  nameFirst: "string"
+  nameLast: "string"
+  nameMiddle: "string"
+  organization: "string"
+  phone: "+86.130000012345"
+
+contactTech:
+  addressMailing:
+    address1: "string"
+    address2: "string"
+    city: "Jiangxi"
+    country: "CN"
+    postalCode: "330000"
+    state: "Jiangxi"
+  email: "user@example.com"
+  fax: ""
+  jobTitle: "string"
+  nameFirst: "string"
+  nameLast: "string"
+  nameMiddle: "string"
+  organization: "string"
+  phone: "+86.130000012345"
+
+period: 1
+privacy: false
+renewAuto: true
