@@ -1,0 +1,26 @@
+generate:
+
+purchase:
+  api:
+    url: "https://api.godaddy.com"
+    key: ""
+    secret: ""
+
+  contact:
+    # 山东省青岛市开平路13号
+    address:
+      address1: "13 Kaiping Road, Qingdao, Shandong"
+      city: "Qingdao"
+      country: "CN"
+      postal_code: "266042"
+      state: "Shandong"
+    email: "aa28cn@gmail.com"
+    name_first: "Jin Chuan"
+    name_last: "Chen"
+    phone: "+86.15310830515"
+
+  name_servers:
+    - "ns1.dns.com"
+    - "ns2.dns.com"
+
+  renew_auto: false

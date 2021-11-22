@@ -3,6 +3,7 @@ import random
 import argparse
 import whois
 from faker import Faker
+from colors import colors
 
 
 LETTER = string.ascii_lowercase + string.digits
@@ -29,16 +30,12 @@ def generate_domains(count, top_level, skip_check):
     while i <= count:
         domain = generate_domain(top_level)
 
-        if skip_check:
+        if skip_check or is_domain_available(domain):
             domains.append(domain)
-            print(f'{i}. {domain}')
-            i += 1
-        elif is_domain_available(domain):
-            domains.append(domain)
-            print(f'{i}. {domain}')
+            print(f'{colors.OK}{i}. {domain}{colors.ENDC}')
             i += 1
         else:
-            print(f'{i}. {domain} ...unavailable')
+            print(f'{colors.FAIL}{i}. {domain} ...unavailable{colors.ENDC}')
 
     return domains
 
@@ -79,12 +76,12 @@ def main():
 
     if args.top_level in WHOIS_NOT_SUPPORT:
         args.skip = True
-        print('Skip domain available check')
+        print(f'{colors.WARNING}Skip domain available check{colors.ENDC}')
 
-    print('Start generate domains...')
+    print(f'{colors.HEADER}Start generate domains...{colors.ENDC}')
     domains = generate_domains(args.count, args.top_level, args.skip)
     output_file(domains, f'./output/{args.file}.txt')
-    print('Done!')
+    print(f'{colors.HEADER}Done!{colors.ENDC}')
 
 
 if __name__ == "__main__":
