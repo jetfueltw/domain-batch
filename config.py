@@ -6,6 +6,6 @@ def read_config(file_path):
         return yaml.safe_load(file)
 
 
-root = read_config('./config.yml')
+root = read_config('./config.yaml')
 generate = root['generate']
 purchase = root['purchase']
